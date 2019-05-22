@@ -1,6 +1,6 @@
 #Quantifying Introgression with Branch Lengths
 #Michael Miyagi
-#5/13/2019
+#5/21/2019
 
 from ete3 import Tree
 import itertools as itt
@@ -285,12 +285,12 @@ def outputFormatter(outputDict,inputDict):
 	tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
-		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist']
+		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist','count']
 		out_writer=csv.DictWriter(csv_out,quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
 		out_writer.writeheader()
 		for triple in tripletSet:
 			for y in triple.taxaSet:
-				out_writer.writerow({'triplet':triple.taxaSet, 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1]})
+				out_writer.writerow({'triplet':triple.taxaSet, 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1], 'count':len(triple.branches(y))})
 	
 
 
