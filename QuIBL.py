@@ -290,7 +290,7 @@ def outputFormatter(outputDict,inputDict):
 		out_writer.writeheader()
 		for triple in tripletSet:
 			for y in triple.taxaSet:
-				out_writer.writerow({'triplet':triple.taxaSet, 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1], 'count':len(triple.branches(y))})
+				out_writer.writerow({'triplet':triple.taxaSet[0]+'_'+triple.taxaSet[1]+'_'+triple.taxaSet[2], 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1], 'count':len(triple.branches(y))})
 	
 
 
