@@ -1,34 +1,38 @@
 #!/usr/bin/env Rscript
 
+suppressMessages(library("ggplot2"))
+suppressMessages(library("RColorBrewer"))
+suppressMessages(library("dplyr"))
+suppressMessages(library("optparse"))
 
-library(ggplot2)
-library(RColorBrewer)
-library(ggrepel)
-library(dplyr)
-library("optparse")
+
 
 ##### read arguments ##############
 
 option_list = list(
   make_option(c("-i", "--inFile"), type="character", default=NULL,
-              help="dataset file name", metavar="character"),
+              help="QuIBL output file name", metavar="file path"),
   make_option(c("-o", "--outBase"), type="character", default="out",
-              help="output file name [default= %default]", metavar="character"),
+              help="analysis output base name [default= %default]", metavar="file path"),
   make_option(c("-s", "--sigLevel"), type="integer", default=-10,
-              help="delta BIC value for significance [default= %default]", metavar="integer")
+              help="delta BIC value for significance [default= %default]", metavar="integer"),
+  make_option(c("-t", "--speciesTree"), type="logical", action = "store", default=F,
+              help="flag specifying if a species tree was given. Defaults to categorizing the most common topology as the species tree for each triplet")
 );
 
-opt_parser = OptionParser(option_list=option_list);
+opt_parser = OptionParser(option_list=option_list, usage = "usage: summaryFileAnalysis.R -i inFile -o outBase [additional options]");
 opt = parse_args(opt_parser);
 
 
-
-quibl <- read.csv("~/Desktop/testOut.csv",header=T,
-                  colClasses = c(rep("factor",2),rep("numeric",9)))
-
 #####read in data
-quibl <- read.csv(opt$inFile,header=T,
-                  colClasses = c(rep("factor",2),rep("numeric",9)))
+tryCatch(
+    {quibl <- read.csv(opt$inFile,header=T,
+              colClasses = c(rep("factor",2),rep("numeric",9)))},
+    error=function(e) {
+        print_help(opt_parser)
+        stop("No input file supplied", call.=FALSE)
+        })
+
 
 outBase <- opt$outBase
 sigLevel <- opt$sigLevel
@@ -37,6 +41,7 @@ sigLevel <- opt$sigLevel
 quibl$BICdiff=quibl$BIC1-quibl$BIC2
 
 #get the total loci analyzed by summing all values of numtrees for a single triplet set
+if (opt$speciesTree == F){
 numLoci <- sum(subset(quibl,triplet==quibl$triplet[1])$count)
 quibl$totalIntroProp <- quibl$mixprop2*(quibl$count/numLoci)
 quibl$isSig <- quibl$BICdiff < sigLevel
@@ -45,7 +50,7 @@ for (trip in unique(as.character(quibl$triplet))){
   maxVal=max(subset(quibl,triplet==trip)$count)
   quibl[which(quibl$triplet==trip & quibl$count==maxVal),]$mostCommon <-  T
 }
-
+}
 
 colors=brewer.pal(8,"Paired")
 
@@ -83,7 +88,7 @@ CvalVsIntroProp <- ggplot(data=quibl)+
   scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="")#+
   #theme(legend.position="none")
 CvalVsIntroProp
-ggsave(CvalVsIntroProp,file=paste0(out,"CValVsTopIntroProp.pdf"),height=10,width=10)
+ggsave(CvalVsIntroProp,file=paste0(outBase,"CValVsTopIntroProp.pdf"),height=10,width=10)
 
 CvalVsTotalIntroProp <- ggplot(data=quibl)+
   geom_point(aes(x=C2,y=totalIntroProp,size=count/numLoci, col=mostCommon, pch=isSig), alpha=.7)+
@@ -93,4 +98,4 @@ CvalVsTotalIntroProp <- ggplot(data=quibl)+
   scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="")#+
   #theme(legend.position="none")
 CvalVsTotalIntroProp
-ggsave(CvalVsTotalIntroProp,file=paste0(out,"CValVsTotalIntroProp.pdf"),height=10,width=10)
+ggsave(CvalVsTotalIntroProp,file=paste0(outBase,"CValVsTotalIntroProp.pdf"),height=10,width=10)
