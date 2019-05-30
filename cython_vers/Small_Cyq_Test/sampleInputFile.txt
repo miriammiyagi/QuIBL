@@ -1,5 +1,5 @@
 [Input]
-treefile: ./Small_Test_Example/smallTestTrees.txt
+treefile: ./Small_Cyq_Test/smallTestTrees.txt
 numdistributions: 2
 likelihoodthresh: 0.01
 numsteps: 10

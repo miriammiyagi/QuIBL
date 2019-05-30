@@ -1,6 +1,6 @@
-#Quantifying Introgression via Branch Lengths
+#Quantifying Introgression via Branch Lengths - Cython Version
 #Michael Miyagi
-#5/21/2019
+#5/28/2019
 
 from ete3 import Tree
 import itertools as itt
@@ -11,6 +11,7 @@ import ConfigParser
 import csv
 from joblib import Parallel, delayed
 import multiprocessing
+import cyquibl_mod as cyq
 
 class tripletT:
 	def __init__(self, tb1,tb2,tb3):
@@ -94,135 +95,12 @@ def getTripBranches(treeList):
 		setOfTriplets.append(tripletT([tripp[0][0]]+tripp[1],[tripp[0][1]]+tripp[2],[tripp[0][2]]+tripp[3]))
 	return setOfTriplets
 	
-		
-def conPDF(x, C, lmbd):
-#Continuous version PDF
-	if x>0 and x>=C*lmbd:
-		y=0.5/lmbd*np.exp(-x/lmbd)*(1+np.exp(C))
-	elif x>0 and C*lmbd>x:
-		y=np.sinh(x/lmbd)/(lmbd*(-1+np.exp(C)))
-	else:
-		y=0
-	return y
 
-def qCalc(x,cArray,pArray,lmbd):
-#Calculates new `q' tuple for x
-	xq=[]
-	for c in range(0, len(cArray)):
-		xq.append(pArray[c]*conPDF(x,cArray[c],lmbd))
-	xq=[l/sum(xq) for l in xq]#xq/sum(xq)
-	return list(xq)
-
-def modelLogLik(XSet, cArray, pArray, lmbd):
-#Calculates the log-likelihood of a set of branches given a model
-	tempSum=0
-	for x in XSet:
-		L=0
-		for i in range(0,len(pArray)):
-			L+=pArray[i]*conPDF(x,cArray[i],lmbd)
-		tempSum+=log(L)
-	return tempSum
-
-def weightedLogLik(XQList, cArray,lmbd):
-#Calculates the conditional likelihood on the Q values for each datapoint
-	L=0
-	for tup in XQList:
-		temp=0
-		for indi,pival in enumerate(tup[1]):
-				temp+=pival*(conPDF(tup[0],cArray[indi],lmbd))
-		L+=log(temp)
-	return L
-
-def cSearch(XSet, XQList, index, lmbd, cArray):
-#Return the best C value from XSet
-	rescaledXSet=[x/lmbd for x in XSet]
-	tempLik=[]
-	testCArray=cArray[:]
-	for j,testVal in enumerate(rescaledXSet):
-		testCArray[index]=testVal
-		tempLik.append(weightedLogLik(XQList, testCArray, lmbd))
-		testCArray[index]=cArray[index]
-	op=rescaledXSet[np.argmax(tempLik)]
-	return op
-
-def pUpdate(XQList):
-#Updates the mixture proportions conditional on the Q values
-	newpArr=[]
-	for i in range(0,len(XQList[1])):
-		temp=[]
-		for x in XQList:
-			temp.append(x[1][i])
-		newpArr.append(np.mean(temp))
-	return newpArr
-
-def XQUpdate(XSet, cArray, pArray, lmbd):
-#Returns a list of the data and their associated Q values
-	XQList=[]
-	for x in XSet:
-		outXQ=[x]
-		outXQ.append(qCalc(x, cArray, pArray,lmbd))
-		XQList.append(outXQ)
-	return XQList
-
-def calcDeriv(XQList, cArray, lmbd):
-#Calculates the derivative of the likelihood w.r.t. lambda for use in the gradient ascent.
-	deriv=0
-	if len(cArray)==1:
-		alpha=cArray[0]*lmbd
-		for x in XQList:
-			deriv+=(x[0]-lmbd)/pow(lmbd,2)
-		return deriv	
-	elif len(cArray)==2:
-		alpha=0
-		beta=cArray[1]*lmbd
-		for x in XQList:
-			val=x[0]
-			if val<beta:
-				p=x[1][1]#x[2]
-				q=x[1][0]#x[1]
-				deriv+=(val+(beta/(-1+np.exp(beta/lmbd)))-(np.exp(2*val/lmbd)*p*(2*val-beta)+(p+2*q)*beta)/((-1+np.exp(2*val/lmbd))*p+2*(-1+np.exp(beta/lmbd))*q)-lmbd)/pow(lmbd,2)
-			if val>=beta:
-				p=x[1][1]#x[2]
-				q=x[1][0]#x[1]
-				deriv+=(x[0]-beta+((p+2*q)*beta)/(p+np.exp(beta/lmbd)*p+2*q)-lmbd)/pow(lmbd,2)
-		return deriv
-
-def gradAscent(XSet, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshold):
-#Conducts gradient ascent to find the optimal lambda- returns this and the search scaling factor `stepScale.' Runs until either the change in likelihood is less than `threshold' or there have been `numSteps' iterations.
-	if len(cArray)==1:
-		return np.mean(XSet), stepScale
-	elif len(cArray)==2:
-		likArray=[0]
-		likArray.append(weightedLogLik(XQList, cArray, lmbd))
-		sc=0
-		while abs(likArray[-1]-likArray[-2])>=threshold*abs(likArray[-1]) and sc<numSteps:
-			newlmbd=lmbd+calcDeriv(XQList, cArray, lmbd)*stepScale
-			if newlmbd<=0:
-				stepScale=stepScale/2
-				sc+=1
-			else:
-				newcArray=[x*(lmbd/newlmbd) for x in cArray]
-				newLik=weightedLogLik(XQList,newcArray,newlmbd)
-				if newLik > likArray[-1]:
-					lmbd=newlmbd
-					cArray=newcArray
-					likArray.append(newLik)
-					sc+=1
-				else:
-					stepScale=stepScale/2
-					sc+=1
-		return lmbd, stepScale
-	
-	elif len(cArray)>=3:
-		print 'Error: C array is too long- only K=1 or K=2 currently supported.'
-		return None
-
-
-
-def exMax(tripletSet, K, threshold, numSteps, stepScale):
+def exMax(tripletSet, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
 	for triple in tripletSet:
 		for outG in triple.taxaSet:
+			stepScale=tempScale
 			branchData=triple.branches(outG)
 			cArray=list(np.zeros(K))
 			pArray=[1./K]*K
@@ -231,22 +109,22 @@ def exMax(tripletSet, K, threshold, numSteps, stepScale):
 				cArray[x]=x
 			steps=0
 			while steps<numSteps:
-				XQList=XQUpdate(branchData, cArray, pArray, lmbd)
-				pArray=pUpdate(XQList)
+				XQList=cyq.XQUpdate(branchData, cArray, pArray, lmbd)
+				pArray=cyq.pUpdate(XQList)
 				for indy in range(1,K):
-					cArray[indy]=cSearch(branchData, XQList, indy, lmbd, cArray)
+					cArray[indy]=cyq.cSearch(branchData, XQList, indy, lmbd, cArray)
 				storedlmbd=lmbd
-				lmbd,stepScale=gradAscent(branchData, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshold)
+				lmbd,stepScale=cyq.gradAscent(branchData, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshold)
 				cArray=[x*(storedlmbd/lmbd) for x in cArray]
 				steps+=1
 			triple.setModel(outG, list(cArray), list(pArray), lmbd)
-			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 			triple.setNull(outG,oneDistNull(branchData))
 	return tripletSet
 
-def PLexMax(triple, K, threshold, numSteps, stepScale):
-#Runs the expectation maximization scheme
+def PLexMax(triple, K, threshold, numSteps, tempScale):
 	for outG in triple.taxaSet:
+		stepScale=tempScale
 		branchData=triple.branches(outG)
 		cArray=list(np.zeros(K))
 		pArray=[1./K]*K
@@ -255,26 +133,25 @@ def PLexMax(triple, K, threshold, numSteps, stepScale):
 			cArray[x]=x
 		steps=0
 		while steps<numSteps:
-			XQList=XQUpdate(branchData, cArray, pArray, lmbd)
-			pArray=pUpdate(XQList)
+			XQList=cyq.XQUpdate(branchData, cArray, pArray, lmbd)
+			pArray=cyq.pUpdate(XQList)
 			for indy in range(1,K):
-				cArray[indy]=cSearch(branchData, XQList, indy, lmbd, cArray)
+				cArray[indy]=cyq.cSearch(branchData, XQList, indy, lmbd, cArray)
 			storedlmbd=lmbd
-			lmbd,stepScale=gradAscent(branchData, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshold)
+			lmbd,stepScale=cyq.gradAscent(branchData, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshold)
 			cArray=[x*(storedlmbd/lmbd) for x in cArray]
 			steps+=1
 		triple.setModel(outG, list(cArray), list(pArray), lmbd)
-		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 		triple.setNull(outG,oneDistNull(branchData))
 	return triple
 
 
 def oneDistNull(branchData):
 	lmbd=np.mean(branchData)
-	bic=np.log(len(branchData))-2*np.log(modelLogLik(branchData, [0.0], [1.0], lmbd))
+	bic=np.log(len(branchData))-2*np.log(cyq.modelLogLik(branchData, [0.0], [1.0], lmbd))
 	return (lmbd,bic)
 	
-
 def outputFormatter(outputDict,inputDict):
 	num_cores=multiprocessing.cpu_count()
 	trees=getTripBranches(readin_Newick(inputDict['treefile']))
@@ -283,6 +160,9 @@ def outputFormatter(outputDict,inputDict):
 	numsteps=int(inputDict['numsteps'])
 	gAScalar=float(inputDict['gradascentscalar'])
 	tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
+	#tripletSet=[]
+	#for triple in trees:
+	#	tripletSet.append(PLexMax(triple, int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), gAScalar))
 	#tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
