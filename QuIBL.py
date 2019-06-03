@@ -282,8 +282,8 @@ def outputFormatter(outputDict,inputDict):
 	lthresh=float(inputDict['likelihoodthresh'])
 	numsteps=int(inputDict['numsteps'])
 	gAScalar=float(inputDict['gradascentscalar'])
-	tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
-	#tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
+	#tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
+	tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
 		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist','count']
