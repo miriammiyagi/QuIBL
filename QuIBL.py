@@ -69,7 +69,7 @@ def tripSetGen(treeSet):
 	return list(itt.combinations(leaves,3))
 
 
-def getTripBranches(treeList,canonOut):
+def getTripBranches(treeList):
 #Goes through the trees in the input and calculates/sorts the internal branch lengths.
 	setOfTriplets=[]
 	triples=tripSetGen(treeList)
@@ -78,7 +78,7 @@ def getTripBranches(treeList,canonOut):
 	output=[[None,[],[],[]] for i in range(lenIt)]
 	dist=0
 	for tree in treeList:
-		tree.set_outgroup(canonOut)
+		#tree.set_outgroup(canonOut)
 		for index,triplet in enumerate(triples):
 			output[index][0]=triplet
 			tempTree=tree.copy('newick')
@@ -220,10 +220,11 @@ def gradAscent(XSet, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshol
 
 
 
-def exMax(tripletSet, K, threshold, numSteps, stepScale):
+def exMax(tripletSet, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
 	for triple in tripletSet:
 		for outG in triple.taxaSet:
+			stepScale=tempScale
 			branchData=triple.branches(outG)
 			cArray=list(np.zeros(K))
 			pArray=[1./K]*K
@@ -245,9 +246,10 @@ def exMax(tripletSet, K, threshold, numSteps, stepScale):
 			triple.setNull(outG,oneDistNull(branchData))
 	return tripletSet
 
-def PLexMax(triple, K, threshold, numSteps, stepScale):
+def PLexMax(triple, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
 	for outG in triple.taxaSet:
+		stepScale=tempScale
 		branchData=triple.branches(outG)
 		cArray=list(np.zeros(K))
 		pArray=[1./K]*K
@@ -283,7 +285,7 @@ def outputFormatter(outputDict,inputDict):
 	numsteps=int(inputDict['numsteps'])
 	gAScalar=float(inputDict['gradascentscalar'])
 	canonOut=str(inputDict['totaloutgroup'])
-	trees=getTripBranches(readin_Newick(inputDict['treefile']),canonOut)
+	trees=getTripBranches(readin_Newick(inputDict['treefile']))
 	#tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
 	tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
