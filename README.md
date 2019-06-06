@@ -5,4 +5,4 @@
 
 ## Installation
 Currently, ``QuIBL`` is distributed as a python script. To run it, ensure that you are using Python v2.7, and have installed the following dependencies:
-``joblib``, ``ete3``, ``itertools``, ``sys``, ``numpy``, ``math``, ``ConfigParser``, ``csv``, ``joblib``, ``multiprocessing``
+``joblib``, ``ete3``, ``itertools``, ``sys``, ``numpy``, ``math``, ``ConfigParser``, ``csv``, ``joblib``, and ``multiprocessing``.

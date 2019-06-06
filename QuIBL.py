@@ -74,10 +74,11 @@ def getTripBranches(treeList):
 	setOfTriplets=[]
 	triples=tripSetGen(treeList)
 	lenIt=sum(1 for _ in triples)
-	output=np.zeros((4,lenIt))
+	#output=np.zeros((4,lenIt))
 	output=[[None,[],[],[]] for i in range(lenIt)]
 	dist=0
 	for tree in treeList:
+		#tree.set_outgroup(canonOut)
 		for index,triplet in enumerate(triples):
 			output[index][0]=triplet
 			tempTree=tree.copy('newick')
@@ -219,10 +220,11 @@ def gradAscent(XSet, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshol
 
 
 
-def exMax(tripletSet, K, threshold, numSteps, stepScale):
+def exMax(tripletSet, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
 	for triple in tripletSet:
 		for outG in triple.taxaSet:
+			stepScale=tempScale
 			branchData=triple.branches(outG)
 			cArray=list(np.zeros(K))
 			pArray=[1./K]*K
@@ -244,9 +246,10 @@ def exMax(tripletSet, K, threshold, numSteps, stepScale):
 			triple.setNull(outG,oneDistNull(branchData))
 	return tripletSet
 
-def PLexMax(triple, K, threshold, numSteps, stepScale):
+def PLexMax(triple, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
 	for outG in triple.taxaSet:
+		stepScale=tempScale
 		branchData=triple.branches(outG)
 		cArray=list(np.zeros(K))
 		pArray=[1./K]*K
@@ -277,13 +280,14 @@ def oneDistNull(branchData):
 
 def outputFormatter(outputDict,inputDict):
 	num_cores=multiprocessing.cpu_count()
-	trees=getTripBranches(readin_Newick(inputDict['treefile']))
 	K=int(inputDict['numdistributions'])
 	lthresh=float(inputDict['likelihoodthresh'])
 	numsteps=int(inputDict['numsteps'])
 	gAScalar=float(inputDict['gradascentscalar'])
-	tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
-	#tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
+	canonOut=str(inputDict['totaloutgroup'])
+	trees=getTripBranches(readin_Newick(inputDict['treefile']))
+	#tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
+	tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
 		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist','count']
