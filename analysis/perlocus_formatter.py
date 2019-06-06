@@ -39,15 +39,21 @@ def readin_Newick(filepath):
 		treeList.append(Tree(tree))
 	return treeList,returnlist
 
-def getTripBranches(treeList,tripOfInt,model):
+def getTripBranches(treeList,tripOfInt,model,canonOut):
 	output=[]#[[tripOfInt[0]],[tripOfInt[1]],[tripOfInt[2]]]
 	refMod=[]
 	for outg in tripOfInt:
 		for mod in model:
 			if mod['outgroup']==outg:
 				refMod.append(mod)
-	dist=0
+	#dist=0
 	for tind,tree in enumerate(treeList):
+		tree.set_outgroup(canonOut)
+		#print tree.expand_polytomies()
+		if len(tree.expand_polytomies())>1:
+			print 'Tree '+str(tind)+' skipped due to polytomy.'
+			continue
+		dist=0
 		tempTree=tree.copy('newick')
 		tempTree.prune(tripOfInt,preserve_branch_length=True)
 		common=tempTree.get_leaves()[0].get_common_ancestor(tempTree.get_leaves())
@@ -63,11 +69,11 @@ def getTripBranches(treeList,tripOfInt,model):
 			output.append((tripOfInt[tempInd],tind,dist,iprob))
 	return output
 
-def writeOut(treesray,inpath,tripOfInt,outpath):
+def writeOut(treesray,inpath,tripOfInt,outpath,canonOut):
 	treelist,textrees=readin_Newick(treesray)
 	model=getModel(inpath,tripOfInt)
 	tripList=tripOfInt.split("_")
-	output=getTripBranches(treelist,tripList,model)
+	output=getTripBranches(treelist,tripList,model,canonOut)
 	with open(outpath,'w') as csv_out:
 		fieldnames=['tree','outgroup','branchLength', 'intro_prob']
 		out_writer=csv.DictWriter(csv_out,quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
@@ -75,6 +81,6 @@ def writeOut(treesray,inpath,tripOfInt,outpath):
 		for locus in output:
 			out_writer.writerow({'tree':textrees[locus[1]],'outgroup':locus[0],'branchLength':locus[2], 'intro_prob': locus[3]})
 		
-writeOut(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+writeOut(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
 
 

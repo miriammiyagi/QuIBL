@@ -18,9 +18,9 @@ class tripletT:
 		self.taxaSet=[tb1[0],tb2[0],tb3[0]]
 		self.branchMat=[tb1[1:],tb2[1:],tb3[1:]]
 		self.canonOG=None
-		self.models=dict()
-		self.BIC=dict()
-		self.null=dict()
+		self.models={tb1[0]:((0,0),(0,0),0),tb2[0]:((0,0),(0,0),0),tb3[0]:((0,0),(0,0),0)}#dict()
+		self.BIC={tb1[0]:0,tb2[0]:0,tb3[0]:0}#dict()
+		self.null={tb1[0]:(0,0),tb2[0]:(0,0),tb3[0]:(0,0)}#dict()
 
 	def setCanonOutgroup(self,taxon):
 	#Sets the `true' outgroup to `taxon'
@@ -69,15 +69,20 @@ def tripSetGen(treeSet):
 	return list(itt.combinations(leaves,3))
 
 
-def getTripBranches(treeList):
+def getTripBranches(treeList,canonOut):
 #Goes through the trees in the input and calculates/sorts the internal branch lengths.
 	setOfTriplets=[]
 	triples=tripSetGen(treeList)
 	lenIt=sum(1 for _ in triples)
 	#output=np.zeros((4,lenIt))
 	output=[[None,[],[],[]] for i in range(lenIt)]
-	dist=0
-	for tree in treeList:
+	for counter,tree in enumerate(treeList):
+		tree.set_outgroup(canonOut)
+		#print tree.expand_polytomies()
+		if len(tree.expand_polytomies())>1:
+			print 'Tree '+str(counter)+' skipped due to polytomy.'
+			continue
+		dist=0
 		#tree.set_outgroup(canonOut)
 		for index,triplet in enumerate(triples):
 			output[index][0]=triplet
@@ -226,6 +231,8 @@ def exMax(tripletSet, K, threshold, numSteps, tempScale):
 		for outG in triple.taxaSet:
 			stepScale=tempScale
 			branchData=triple.branches(outG)
+			if len(branchData)<2:
+				continue
 			cArray=list(np.zeros(K))
 			pArray=[1./K]*K
 			lmbd=np.mean(branchData)
@@ -251,6 +258,8 @@ def PLexMax(triple, K, threshold, numSteps, tempScale):
 	for outG in triple.taxaSet:
 		stepScale=tempScale
 		branchData=triple.branches(outG)
+		if len(branchData)<2:
+			continue
 		cArray=list(np.zeros(K))
 		pArray=[1./K]*K
 		lmbd=np.mean(branchData)
@@ -285,8 +294,8 @@ def outputFormatter(outputDict,inputDict):
 	numsteps=int(inputDict['numsteps'])
 	gAScalar=float(inputDict['gradascentscalar'])
 	canonOut=str(inputDict['totaloutgroup'])
-	trees=getTripBranches(readin_Newick(inputDict['treefile']))
-	#tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
+	trees=getTripBranches(readin_Newick(inputDict['treefile']),canonOut)
+	#tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile']),canonOut), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
 	tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
@@ -295,6 +304,7 @@ def outputFormatter(outputDict,inputDict):
 		out_writer.writeheader()
 		for triple in tripletSet:
 			for y in triple.taxaSet:
+				#print triple.models.get(y)[0][0]
 				out_writer.writerow({'triplet':triple.taxaSet[0]+'_'+triple.taxaSet[1]+'_'+triple.taxaSet[2], 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1], 'count':len(triple.branches(y))})
 	
 

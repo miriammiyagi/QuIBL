@@ -4,6 +4,7 @@ numdistributions: 2
 likelihoodthresh: 0.01
 numsteps: 10
 gradascentscalar: 0.5
+totaloutgroup: 4
 
 [Output]
 OutputPath: ./testOut.csv
