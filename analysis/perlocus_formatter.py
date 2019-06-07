@@ -1,5 +1,5 @@
 #Formats output from QuIBL with a file with a list of loci to give locus-per-locus introgression estimates given a triplet.
-#Input form is: python perlocus_formatter.py treefile_path quibl_out_csv_path triplet output_filepath
+#Input form is: python perlocus_formatter.py treefile_path quibl_out_csv_path triplet output_filepath canonical_outgroup
 #Michael Miyagi
 #6/6/2019
 
