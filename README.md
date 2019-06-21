@@ -12,10 +12,17 @@ To test ``QuIBL``, download the repository and type ``python QuIBL.py ./Small_Te
 
 ## Input File Settings
 ``treefile`` : The path to the trees to be analyzed.
+
 ``numdistributions`` : The number of branch length distributions in the mixture to test. For now, only two is supported (this corresponds to one ILS and one non-ILS distribution).
+
 ``likelihoodthresh`` : The maximum change in likelihood allowed for the gradient ascent search for theta to stop.
+
 ``numsteps`` : The number of total EM steps. For thousands of trees, we reccomend trying around 50.
+
 ``gradascentscalar`` : The factor to shrink the stepsize when a gradient ascent step fails.
+
 ``totaloutgroup`` : The name of the ultimate outrgroup of your sample. All trees are assumed to be rooted using this taxon.
+
 ``multiproc`` : Accepts ``True`` or ``False`` and either turns multiprocessing on or off.
+
 ``OutputPath`` : Where the output gets written.
