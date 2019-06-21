@@ -26,3 +26,6 @@ To test ``QuIBL``, download the repository and type ``python QuIBL.py ./Small_Te
 ``multiproc`` : Accepts ``True`` or ``False`` and either turns multiprocessing on or off.
 
 ``OutputPath`` : Where the output gets written.
+
+## Preprint
+For additional details, please see [the preprint](https://www.biorxiv.org/content/10.1101/466292v3).
