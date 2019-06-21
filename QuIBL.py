@@ -1,6 +1,5 @@
 #Quantifying Introgression via Branch Lengths
 #Michael Miyagi
-#5/21/2019
 
 from ete3 import Tree
 import itertools as itt
