@@ -1,6 +1,5 @@
 #Quantifying Introgression via Branch Lengths - Cython Version
 #Michael Miyagi
-#5/28/2019
 
 from ete3 import Tree
 import itertools as itt
