@@ -15,9 +15,10 @@ option_list = list(
   make_option(c("-o", "--outBase"), type="character", default="out",
               help="analysis output base name [default= %default]", metavar="file path"),
   make_option(c("-s", "--sigLevel"), type="integer", default=-10,
-              help="delta BIC value for significance [default= %default]", metavar="integer"),
-  make_option(c("-t", "--speciesTree"), type="logical", action = "store", default=F,
-              help="flag specifying if a species tree was given. Defaults to categorizing the most common topology as the species tree for each triplet")
+              help="delta BIC value for significance [default= %default]", metavar="integer")#,
+  #not implemented yet
+  #make_option(c("-t", "--speciesTree"), type="logical", action = "store", default=F,
+  #            help="flag specifying if a species tree was given. Defaults to categorizing the most common topology as the species tree for each triplet",metavar="T/F")
 );
 
 opt_parser = OptionParser(option_list=option_list, usage = "usage: summaryFileAnalysis.R -i inFile -o outBase [additional options]");
