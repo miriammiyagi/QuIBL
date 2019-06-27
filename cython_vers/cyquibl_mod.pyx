@@ -2,6 +2,23 @@ import numpy as np
 from libc.math cimport exp,sinh,cosh,log,pow
 cimport numpy as np
 
+def msum(iterable):
+	#Credit: www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmatic.ps
+	partials=[]
+	for x in iterable:
+		i=0
+		for y in partials:
+			if abs(x)<abs(y):
+				x,y=y,x
+			hi=x+y
+			lo=y-(hi-x)
+			if lo:
+				partials[i]=lo
+				i+=1
+			x=hi
+		partials[i:]=[x]
+	return sum(partials,0.0)
+
 def conPDF(double x, double C, double lmbd):
 	cdef double y
 	if x>0 and x>=C*lmbd:
@@ -16,7 +33,7 @@ def qCalc(double x, list cArray, list pArray, double lmbd):
 	cdef list xq=[]
 	for c in range(0,len(cArray)):
 		xq.append(pArray[c]*conPDF(x,cArray[c],lmbd))
-	xq=[l/sum(xq) for l in xq]
+	xq=[l/msum(xq) for l in xq]
 	return xq
 
 def modelLogLik(list XSet, list cArray, list pArray, double lmbd):
