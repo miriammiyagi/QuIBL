@@ -1,6 +1,5 @@
 #Quantifying Introgression via Branch Lengths - Cython Version
 #Michael Miyagi
-#5/28/2019
 
 from ete3 import Tree
 import itertools as itt
@@ -168,8 +167,11 @@ def outputFormatter(outputDict,inputDict):
 	gAScalar=float(inputDict['gradascentscalar'])
 	canonOut=str(inputDict['totaloutgroup'])
 	trees=getTripBranches(readin_Newick(inputDict['treefile']),canonOut)
-	tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile']),canonOut), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
-	#tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
+	multi=bool(inputDict['multiproc'])
+	if multi:
+		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
+	else:
+		tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile']),canonOut), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
 		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist','count']
