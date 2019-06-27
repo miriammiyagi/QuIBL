@@ -15,7 +15,9 @@ option_list = list(
   make_option(c("-o", "--outBase"), type="character", default="out",
               help="analysis output base name [default= %default]", metavar="file path"),
   make_option(c("-s", "--sigLevel"), type="integer", default=-10,
-              help="delta BIC value for significance [default= %default]", metavar="integer")#,
+              help="delta BIC value for significance [default= %default]", metavar="integer"),
+  make_option(c("-t", "--outgroup"), type="character", default=NA,
+              help="outgroup taxon [default= %default]", metavar="outgroup")#,
   #not implemented yet
   #make_option(c("-t", "--speciesTree"), type="logical", action = "store", default=F,
   #            help="flag specifying if a species tree was given. Defaults to categorizing the most common topology as the species tree for each triplet",metavar="T/F")
@@ -37,12 +39,18 @@ tryCatch(
 
 outBase <- opt$outBase
 sigLevel <- opt$sigLevel
+outGroup <- opt$outgroup
 
 ## add columns for delta BIC, total introgression proportion, significance, most common tree in triplet (if species tree not specified)
-quibl$BICdiff=quibl$BIC1-quibl$BIC2
+quibl$BICdiff <- quibl$BIC1-quibl$BIC2
+
+if (is.na(outGroup)){
+  quibl$hasOverallOut <- F
+} else {quibl$hasOverallOut <- grepl(outGroup,quibl$triplet)}
+
 
 #get the total loci analyzed by summing all values of numtrees for a single triplet set
-if (opt$speciesTree == F){
+#if (opt$speciesTree == F){
 numLoci <- sum(subset(quibl,triplet==quibl$triplet[1])$count)
 quibl$totalIntroProp <- quibl$mixprop2*(quibl$count/numLoci)
 quibl$isSig <- quibl$BICdiff < sigLevel
@@ -51,19 +59,22 @@ for (trip in unique(as.character(quibl$triplet))){
   maxVal=max(subset(quibl,triplet==trip)$count)
   quibl[which(quibl$triplet==trip & quibl$count==maxVal),]$mostCommon <-  T
 }
-}
+#}
 
 colors=brewer.pal(8,"Paired")
 
+
+quibl <- subset(quibl,hasOverallOut==F)
 ##### total introgression proportions #####
 #here, we're calculating the total number of discordant triplets that arose via introgression. Assuming that concordant triplets are most common.
 discordSet=subset(quibl, mostCommon==F)
 allDiscordTrees=sum(discordSet$count)
 pctDiscordTrees=allDiscordTrees/sum(quibl$count)
-discordIntro <- sum(discordSet$count*discordSet$mixprop2*as.numeric(discordSet$isSig))
+discordIntro <- sum(discordSet$count*discordSet$mixprop2*as.numeric(discordSet$isSig),na.rm=T)
 propDiscordIntro <- discordIntro/allDiscordTrees
 propOverallIntro <- discordIntro/sum(quibl$count)
-print(paste0("Number of discordant topologies with significant evidence for introgression: ",length(which(discordSet$isSig==T))))
+print(paste0("Number of discordant topologies with significant evidence for introgression: ",length(which(discordSet$isSig==T)),
+             " topologies in ", length(unique(subset(discordSet, isSig==T)$triplet)), " of ", length(unique(discordSet$triplet)), " triplets (delta BIC < ", sigLevel, " )"))
 print(paste0("Proportion of discordant trees arising via introgression: ",propDiscordIntro))
 print(paste0("Proportion of all trees arising via introgression: ",propOverallIntro))
 
@@ -86,7 +97,8 @@ CvalVsIntroProp <- ggplot(data=quibl)+
   labs(y="Topology non-ILS proportion",x="Non-ILS C")+
   scale_size_continuous(name = "Proportion of topologies")+
   scale_color_manual(values=c(colors[8],colors[2]),labels=c("minor topology","major topology"),name="")+
-  scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="")#+
+  scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="")+
+  xlim(c(0,15)) #+
   #theme(legend.position="none")
 CvalVsIntroProp
 ggsave(CvalVsIntroProp,file=paste0(outBase,"CValVsTopIntroProp.pdf"),height=10,width=10)
@@ -96,7 +108,8 @@ CvalVsTotalIntroProp <- ggplot(data=quibl)+
   labs(y="Total Non-ILS proportion",x="Non-ILS C")+
   scale_size_continuous(name = "Proportion of topologies")+
   scale_color_manual(values=c(colors[8],colors[2]),labels=c("minor topology","major topology"),name="")+
-  scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="")#+
+  scale_shape_manual(values=c(18,19),labels=c("nonsignificant","significant"),name="") +
+  xlim(c(0,15)) #+
   #theme(legend.position="none")
 CvalVsTotalIntroProp
 ggsave(CvalVsTotalIntroProp,file=paste0(outBase,"CValVsTotalIntroProp.pdf"),height=10,width=10)
