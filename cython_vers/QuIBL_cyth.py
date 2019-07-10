@@ -123,7 +123,7 @@ def exMax(tripletSet, K, threshold, numSteps, tempScale):
 				cArray=[x*(storedlmbd/lmbd) for x in cArray]
 				steps+=1
 			triple.setModel(outG, list(cArray), list(pArray), lmbd)
-			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 			triple.setNull(outG,oneDistNull(branchData))
 	return tripletSet
 
@@ -149,14 +149,14 @@ def PLexMax(triple, K, threshold, numSteps, tempScale):
 			cArray=[x*(storedlmbd/lmbd) for x in cArray]
 			steps+=1
 		triple.setModel(outG, list(cArray), list(pArray), lmbd)
-		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(cyq.modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 		triple.setNull(outG,oneDistNull(branchData))
 	return triple
 
 
 def oneDistNull(branchData):
 	lmbd=np.mean(branchData)
-	bic=np.log(len(branchData))-2*np.log(cyq.modelLogLik(branchData, [0.0], [1.0], lmbd))
+	bic=np.log(len(branchData))-2*(cyq.modelLogLik(branchData, [0.0], [1.0], lmbd))
 	return (lmbd,bic)
 	
 def outputFormatter(outputDict,inputDict):

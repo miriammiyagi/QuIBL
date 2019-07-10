@@ -134,7 +134,7 @@ def weightedLogLik(XQList, cArray,lmbd):
 	for tup in XQList:
 		temp=0
 		for indi,pival in enumerate(tup[1]):
-				temp+=pival*(conPDF(tup[0],cArray[indi],lmbd))
+			temp+=pival*(conPDF(tup[0],cArray[indi],lmbd))
 		L+=log(temp)
 	return L
 
@@ -248,7 +248,7 @@ def exMax(tripletSet, K, threshold, numSteps, tempScale):
 				cArray=[x*(storedlmbd/lmbd) for x in cArray]
 				steps+=1
 			triple.setModel(outG, list(cArray), list(pArray), lmbd)
-			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 			triple.setNull(outG,oneDistNull(branchData))
 	return tripletSet
 
@@ -275,14 +275,14 @@ def PLexMax(triple, K, threshold, numSteps, tempScale):
 			cArray=[x*(storedlmbd/lmbd) for x in cArray]
 			steps+=1
 		triple.setModel(outG, list(cArray), list(pArray), lmbd)
-		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*np.log(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
+		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 		triple.setNull(outG,oneDistNull(branchData))
 	return triple
 
 
 def oneDistNull(branchData):
 	lmbd=np.mean(branchData)
-	bic=np.log(len(branchData))-2*np.log(modelLogLik(branchData, [0.0], [1.0], lmbd))
+	bic=np.log(len(branchData))-2*(modelLogLik(branchData, [0.0], [1.0], lmbd))
 	return (lmbd,bic)
 	
 
