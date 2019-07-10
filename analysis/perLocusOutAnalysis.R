@@ -33,13 +33,14 @@ tryCatch(
 
 outBase <- opt$outBase
 taxa=unique(quibl$outgroup)
-
+colors <- brewer.pal(8,"Paired")
+quibl$outgroup <- factor(quibl$outgroup,levels=taxa)
 ########### make simple plots ##########
 
 branchLengths <- ggplot() +
-  geom_histogram(data=subset(quibl, outgroup==taxa[1]),aes(x=branchLength),fill="blue", bins=50)+
-  geom_histogram(data=subset(quibl, outgroup==taxa[2]),aes(x=branchLength),fill="red", bins=50, alpha=0.5)+
-  geom_histogram(data=subset(quibl, outgroup==taxa[3]),aes(x=branchLength),fill="green", bins=50, alpha=0.5)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[2]),aes(x=branchLength),fill=colors[2], bins=50,alpha=0.7)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[1]),aes(x=branchLength),fill=colors[6], bins=50,alpha=0.7)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[3]),aes(x=branchLength),fill=colors[4], bins=50)+
   scale_x_continuous(limits=c(0,0.07))
 branchLengths
 ggsave(branchLengths,file=paste0(outBase,"branchLengthsHist.pdf"),height=10,width=10)
@@ -47,7 +48,7 @@ ggsave(branchLengths,file=paste0(outBase,"branchLengthsHist.pdf"),height=10,widt
 branchLengthBox <- ggplot(data=quibl,aes(x=as.factor(outgroup),y=branchLength,col=as.factor(outgroup))) +
   geom_jitter(alpha=.1)+
   geom_boxplot(outlier.shape = NA,fill="transparent", color="black")+
-  scale_color_manual(values=c("blue","red","green"), labels=taxa,name="outgroup")+
+  scale_color_manual(values=c(colors[6],colors[2],colors[4]), labels=taxa,name="outgroup")+
   scale_x_discrete(labels=taxa) +
   labs(x="outgroup")+
   scale_y_continuous(limits=c(0,0.07))+
@@ -57,9 +58,9 @@ ggsave(branchLengthBox,file=paste0(outBase,"branchLengthsBox.pdf"),height=10,wid
 
 
 introProbs <- ggplot() +
-  geom_histogram(data=subset(quibl, outgroup==taxa[1]),aes(x=introProb),fill="green",alpha=.7)+
-  geom_histogram(data=subset(quibl, outgroup==taxa[2]),aes(x=introProb),fill="blue",alpha=.7)+
-  geom_histogram(data=subset(quibl, outgroup==taxa[3]),aes(x=introProb),fill="red",alpha=.7)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[2]),aes(x=introProb),fill=colors[2],alpha=.7)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[1]),aes(x=introProb),fill=colors[6],alpha=.7)+
+  geom_histogram(data=subset(quibl, outgroup==taxa[3]),aes(x=introProb),fill=colors[4])+
   labs(x="Introgression Probability",y="Number of Windows")
 introProbs
 ggsave(introProbs,file=paste0(outBase,"introgressionProbHist.pdf"),height=10,width=10)
@@ -67,7 +68,7 @@ ggsave(introProbs,file=paste0(outBase,"introgressionProbHist.pdf"),height=10,wid
 
 BLvsIP <- ggplot(data=quibl) +
   geom_point(aes(x=branchLength,y=introProb, col=as.factor(outgroup)), alpha=.2)+
-  scale_color_manual(values=c("blue","red","green"), labels=taxa)+
+  scale_color_manual(values=c(colors[6],colors[2],colors[4]), labels=taxa)+
   scale_x_continuous(limits=c(0,0.07))+
   theme(legend.position = "none")#+
 #geom_vline(xintercept =.01)
