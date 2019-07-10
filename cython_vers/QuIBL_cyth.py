@@ -27,7 +27,7 @@ class tripletT:
 		if taxon in self.taxaSet:
 			self.canonOG=taxon
 		else: print 'Error: Not a valid outgroup for this triplet.'
-	
+
 	def branches(self,taxon):
 	#Returns the set of branch lengths for trees in the topology with outgroup `taxon'
 		IND=self.taxaSet.index(taxon)
@@ -97,7 +97,7 @@ def getTripBranches(treeList,canonOut):
 	for tripp in output:
 		setOfTriplets.append(tripletT([tripp[0][0]]+tripp[1],[tripp[0][1]]+tripp[2],[tripp[0][2]]+tripp[3]))
 	return setOfTriplets
-	
+
 
 def exMax(tripletSet, K, threshold, numSteps, tempScale):
 #Runs the expectation maximization scheme
@@ -158,7 +158,7 @@ def oneDistNull(branchData):
 	lmbd=np.mean(branchData)
 	bic=np.log(len(branchData))-2*(cyq.modelLogLik(branchData, [0.0], [1.0], lmbd))
 	return (lmbd,bic)
-	
+
 def outputFormatter(outputDict,inputDict):
 	num_cores=multiprocessing.cpu_count()
 	K=int(inputDict['numdistributions'])
@@ -171,7 +171,7 @@ def outputFormatter(outputDict,inputDict):
 	if multi:
 		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	else:
-		tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile'])), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
+		tripletSet=exMax(getTripBranches(readin_Newick(inputDict['treefile']),canonOut), int(inputDict['numdistributions']), float(inputDict['likelihoodthresh']), int(inputDict['numsteps']), float(inputDict['gradascentscalar']))
 	with open(outputDict['outputpath'],'w') as csv_out:
 		fieldnames=[]
 		fieldnames=['triplet','outgroup','C1','C2','mixprop1', 'mixprop2','lambda2Dist', 'lambda1Dist', 'BIC2Dist', 'BIC1Dist','count']
@@ -180,7 +180,7 @@ def outputFormatter(outputDict,inputDict):
 		for triple in tripletSet:
 			for y in triple.taxaSet:
 				out_writer.writerow({'triplet':triple.taxaSet[0]+'_'+triple.taxaSet[1]+'_'+triple.taxaSet[2], 'outgroup': y, 'C1': triple.models.get(y)[0][0], 'C2': triple.models.get(y)[0][1],'mixprop1': triple.models.get(y)[1][0],'mixprop2': triple.models.get(y)[1][1], 'lambda2Dist': triple.models.get(y)[2], 'lambda1Dist': triple.null.get(y)[0],'BIC2Dist': triple.BIC.get(y), 'BIC1Dist': triple.null.get(y)[1], 'count':len(triple.branches(y))})
-	
+
 
 
 def inputReader(filepath):
@@ -193,16 +193,10 @@ def inputReader(filepath):
 
 	if 'treefile' not in inputDict:
 		print 'Error: No input trees specified.'
-		return 
+		return
 	outputDict={}
 	for flag in config.options('Output'):
 		outputDict[flag]=config.get('Output',flag)
 	outputFormatter(outputDict,inputDict)
-		
+
 inputReader(sys.argv[1])
-
-
-
-
-
-
