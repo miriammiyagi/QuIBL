@@ -42,7 +42,7 @@ sigLevel <- opt$sigLevel
 outGroup <- opt$outgroup
 
 ## add columns for delta BIC, total introgression proportion, significance, most common tree in triplet (if species tree not specified)
-quibl$BICdiff <- quibl$BIC1-quibl$BIC2
+quibl$BICdiff <- quibl$BIC2-quibl$BIC1
 
 if (is.na(outGroup)){
   quibl$hasOverallOut <- F
