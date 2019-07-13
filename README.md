@@ -29,6 +29,8 @@ To test ``QuIBL``, download the repository and type ``python QuIBL.py ./Small_Te
 
 ``OutputPath`` : Where the output gets written.
 
+``maxcores`` : The maximum number of cores QuIBL is allowed to use.
+
 ## Reading the Output
 
 Currently ``QuIBL`` prints out a csv file with the following columns:
