@@ -6,6 +6,7 @@ numsteps: 100
 gradascentscalar: 0.5
 totaloutgroup: 4
 multiproc: True
+maxcores: 1000
 
 [Output]
 OutputPath: ./testOut.csv

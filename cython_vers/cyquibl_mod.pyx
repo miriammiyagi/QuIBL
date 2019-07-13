@@ -100,7 +100,7 @@ def gradAscent(list XSet,list XQList,list cArray,list pArray,double lmbd,double 
 		sc=0
 		while abs(likArray[-1]-likArray[-2])>=threshold*abs(likArray[-1]) and sc<numSteps:
 			newlmbd=lmbd+calcDeriv(XQList, cArray, lmbd)*stepScale
-			if newlmbd<=0:
+			if newlmbd<=0.0005:
 				stepScale=stepScale/2
 				sc+=1
 			else:

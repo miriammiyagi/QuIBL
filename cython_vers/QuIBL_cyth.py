@@ -160,7 +160,7 @@ def oneDistNull(branchData):
 	return (lmbd,bic)
 	
 def outputFormatter(outputDict,inputDict):
-	num_cores=multiprocessing.cpu_count()
+	#num_cores=multiprocessing.cpu_count()
 	K=int(inputDict['numdistributions'])
 	lthresh=float(inputDict['likelihoodthresh'])
 	numsteps=int(inputDict['numsteps'])
@@ -168,6 +168,8 @@ def outputFormatter(outputDict,inputDict):
 	canonOut=str(inputDict['totaloutgroup'])
 	trees=getTripBranches(readin_Newick(inputDict['treefile']),canonOut)
 	multi=bool(inputDict['multiproc'])
+	corecap=int(inputDict['maxcores'])
+	num_cores=min(multiprocessing.cpu_count(),corecap)
 	if multi:
 		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	else:

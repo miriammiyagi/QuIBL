@@ -202,7 +202,7 @@ def gradAscent(XSet, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshol
 		sc=0
 		while abs(likArray[-1]-likArray[-2])>=threshold*abs(likArray[-1]) and sc<numSteps:
 			newlmbd=lmbd+calcDeriv(XQList, cArray, lmbd)*stepScale
-			if newlmbd<=0:
+			if newlmbd<=0.0005:
 				stepScale=stepScale/2
 				sc+=1
 			else:
@@ -287,7 +287,7 @@ def oneDistNull(branchData):
 	
 
 def outputFormatter(outputDict,inputDict):
-	num_cores=multiprocessing.cpu_count()
+	#num_cores=multiprocessing.cpu_count()
 	K=int(inputDict['numdistributions'])
 	lthresh=float(inputDict['likelihoodthresh'])
 	numsteps=int(inputDict['numsteps'])
@@ -295,6 +295,8 @@ def outputFormatter(outputDict,inputDict):
 	canonOut=str(inputDict['totaloutgroup'])
 	trees=getTripBranches(readin_Newick(inputDict['treefile']),canonOut)
 	multi=bool(inputDict['multiproc'])
+	corecap=int(inputDict['maxcores'])
+	num_cores=min(multiprocessing.cpu_count(),corecap)
 	if multi:
 		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	else:
