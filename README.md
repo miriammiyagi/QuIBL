@@ -10,7 +10,7 @@ Currently, ``QuIBL`` is distributed as a python script. To run it, ensure that y
 ``joblib``, ``ete3``, ``itertools``, ``sys``, ``numpy``, ``math``, ``ConfigParser``, ``csv``, ``joblib``, and ``multiprocessing``.
 
 ## Running QuIBL
-To test ``QuIBL``, download the repository and type ``python QuIBL.py ./Small_Test_Example/sampleInputFile.txt``. This will run a small provided sample data file. To test your own data, change the ``treefile`` setting to be the path to a file with your Newick trees.
+To test ``QuIBL``, download and navigate to the repository and type ``python QuIBL.py ./Small_Test_Example/sampleInputFile.txt``. Any dependencies that may not be present can be installed using ``pip``. This will run a small provided sample data file and write an output CSV file to the same directory. To test your own data, change the ``treefile`` setting to be the path to a file with your Newick trees.
 
 ## Input File Settings
 ``treefile`` : The path to the trees to be analyzed.
@@ -28,6 +28,8 @@ To test ``QuIBL``, download the repository and type ``python QuIBL.py ./Small_Te
 ``multiproc`` : Accepts ``True`` or ``False`` and either turns multiprocessing on or off.
 
 ``OutputPath`` : Where the output gets written.
+
+``maxcores`` : The maximum number of cores QuIBL is allowed to use.
 
 ## Reading the Output
 
