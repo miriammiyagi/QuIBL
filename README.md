@@ -53,7 +53,7 @@ Currently ``QuIBL`` prints out a csv file with the following columns:
 
 Sample scripts to parse the output are provided in the ``analysis`` folder.
 
-## Sample Interpretation of the Output
+## Interpretation of the Output
 
 Given a species tree (((A,B),C),D); You might be interested in estimating the proportion of introgressed loci from species C into species B. In the output table, you'd see lines that might look something like this:
 
