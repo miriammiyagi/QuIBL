@@ -250,6 +250,7 @@ def exMax(tripletSet, K, threshold, numSteps, tempScale):
 			triple.setModel(outG, list(cArray), list(pArray), lmbd)
 			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 			triple.setNull(outG,oneDistNull(branchData))
+		print str(triple.taxaSet)+' is complete.'
 	return tripletSet
 
 def PLexMax(triple, K, threshold, numSteps, tempScale):
@@ -277,6 +278,7 @@ def PLexMax(triple, K, threshold, numSteps, tempScale):
 		triple.setModel(outG, list(cArray), list(pArray), lmbd)
 		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 		triple.setNull(outG,oneDistNull(branchData))
+	print str(triple.taxaSet)+' is complete.'
 	return triple
 
 
@@ -297,6 +299,7 @@ def outputFormatter(outputDict,inputDict):
 	multi=bool(inputDict['multiproc'])
 	corecap=int(inputDict['maxcores'])
 	num_cores=min(multiprocessing.cpu_count(),corecap)
+	print 'Analysis Started'
 	if multi:
 		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	else:
