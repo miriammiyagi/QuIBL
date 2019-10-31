@@ -9,7 +9,7 @@ Michael Miyagi (m_miyagi@g.harvard.edu) and Nate Edelman (nedelman@g.harvard.edu
 Currently, ``QuIBL`` is distributed as a python script. To run it, ensure that you are using Python v2.7, and have installed the following dependencies:
 ``joblib``, ``ete3``, ``itertools``, ``sys``, ``numpy``, ``math``, ``ConfigParser``, ``csv``, ``joblib``, and ``multiprocessing``.
 
-If you want to use the exact versions of ``ete3``,  ``joblib``, and  ``Cython``we used, type ``pip install -r quibl_requirements.txt`` in terminal while in the main directory. 
+If you want to use the exact versions of ``ete3`` and ``joblib`` we used, type ``pip install -r quibl_requirements.txt`` in terminal while in the main directory. 
 
 ## Running QuIBL
 To test ``QuIBL``, download and navigate to the repository and type ``python QuIBL.py ./Small_Test_Example/sampleInputFile.txt``. Any dependencies that may not be present can be installed using ``pip``. This will run a small provided sample data file and write an output CSV file to the same directory. To test your own data, change the ``treefile`` setting to be the path to a file with your Newick trees.
