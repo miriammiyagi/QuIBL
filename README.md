@@ -60,8 +60,8 @@ Given a species tree (((A,B),C),D); You might be interested in estimating the pr
 | triplet | outgroup | C1 | C2 | mixprop1 | mixprop2 | lambda2Dist | lambda1Dist | BIC2Dist | BIC1Dist | count|
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | A_B_C | A | 0 | 4.5 | 0.10 | 0.90 | 0.002 | 0.01| -1999 | -1599 | 1000 |
-| A_B_C | B | 0 | 1.1 | 0.95 | 0.05 | 0.002 | 0.01| -199 | -299 | 100 |
-| A_B_C | C | 0 | 6.7 | 0.01 | 0.99 | 0.002 | 0.01| -9999 | -1799 | 100000 |
+| A_B_C | B | 0 | 1.1 | 0.95 | 0.05 | 0.003 | 0.003| -199 | -299 | 100 |
+| A_B_C | C | 0 | 6.7 | 0.01 | 0.99 | 0.004 | 0.05| -9999 | -1799 | 100000 |
 
 To look at the putatively introgressed loci, look at the line ``| A_B_C | A |``, which have A as the outgroup. ``C2=4.5`` is the estimate of the time between the introgression event and the speciation event between A and C in coalescent units, and 90% of the loci for this topology are inferred as being likely introgressed, or 900 loci in total. You could compare the BIC values for the one distribution (ILS only) and two distribution models to see how likely this effect is to be real. In this toy example, the two distribution model has a much lower BIC value for this topology and is preferred. Introgression is not supported for loci with B as the outgroup, as the ILS proportion is high (95%) and the BIC value for the introgression model is larger. Finally, the species tree topology has huge support for the non-ILS model due to the branch in the species tree, as well as many more loci. Overall, we would estimate that 900/101100 (0.89%) of all loci or 90/1100 (81%) of loci discordant with the species tree are likely introgressed.
 
