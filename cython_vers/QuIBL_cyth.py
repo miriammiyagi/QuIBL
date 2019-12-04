@@ -26,7 +26,7 @@ class tripletT:
 	#Sets the `true' outgroup to `taxon'
 		if taxon in self.taxaSet:
 			self.canonOG=taxon
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 
 	def branches(self,taxon):
 	#Returns the set of branch lengths for trees in the topology with outgroup `taxon'
@@ -37,17 +37,17 @@ class tripletT:
 	#Updates the dictionary of models for `outgroup'
 		if outgroup in self.taxaSet:
 			self.models[outgroup]=(cSet,pi,lmbd)
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 	def setBIC(self,outgroup, bic):
 	#Updates the BIC value for `outgroup'
 		if outgroup in self.taxaSet:
 			self.BIC[outgroup]=bic
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 	def setNull(self,outgroup,ntup):
 	#Updates the one distribution model for `outgroup'
 		if outgroup in self.taxaSet:
 			self.null[outgroup]=ntup
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 
 
 def readin_Newick(filepath):
@@ -79,7 +79,7 @@ def getTripBranches(treeList,canonOut):
 	for counter,tree in enumerate(treeList):
 		tree.set_outgroup(canonOut)
 		if len(tree.expand_polytomies())>1:
-			print 'Tree '+str(counter)+' skipped due to polytomy.'
+			print('Tree '+str(counter)+' skipped due to polytomy.')
 			continue
 		dist=0
 		for index,triplet in enumerate(triples):
@@ -194,7 +194,7 @@ def inputReader(filepath):
 		inputDict[flag]=config.get('Input',flag)
 
 	if 'treefile' not in inputDict:
-		print 'Error: No input trees specified.'
+		print('Error: No input trees specified.')
 		return
 	outputDict={}
 	for flag in config.options('Output'):

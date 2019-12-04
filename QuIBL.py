@@ -25,7 +25,7 @@ class tripletT:
 	#Sets the `true' outgroup to `taxon'
 		if taxon in self.taxaSet:
 			self.canonOG=taxon
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 	
 	def branches(self,taxon):
 	#Returns the set of branch lengths for trees in the topology with outgroup `taxon'
@@ -36,17 +36,17 @@ class tripletT:
 	#Updates the dictionary of models for `outgroup'
 		if outgroup in self.taxaSet:
 			self.models[outgroup]=(cSet,pi,lmbd)
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 	def setBIC(self,outgroup, bic):
 	#Updates the BIC value for `outgroup'
 		if outgroup in self.taxaSet:
 			self.BIC[outgroup]=bic
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 	def setNull(self,outgroup,ntup):
 	#Updates the one distribution model for `outgroup'
 		if outgroup in self.taxaSet:
 			self.null[outgroup]=ntup
-		else: print 'Error: Not a valid outgroup for this triplet.'
+		else: print('Error: Not a valid outgroup for this triplet.')
 
 
 def readin_Newick(filepath):
@@ -79,7 +79,7 @@ def getTripBranches(treeList,canonOut):
 		tree.set_outgroup(canonOut)
 		#print tree.expand_polytomies()
 		if len(tree.expand_polytomies())>1:
-			print 'Tree '+str(counter)+' skipped due to polytomy.'
+			print('Tree '+str(counter)+' skipped due to polytomy.')
 			continue
 		dist=0
 		#tree.set_outgroup(canonOut)
@@ -219,7 +219,7 @@ def gradAscent(XSet, XQList, cArray, pArray, lmbd, stepScale, numSteps, threshol
 		return lmbd, stepScale
 	
 	elif len(cArray)>=3:
-		print 'Error: C array is too long- only K=1 or K=2 currently supported.'
+		print('Error: C array is too long- only K=1 or K=2 currently supported.')
 		return None
 
 
@@ -250,7 +250,7 @@ def exMax(tripletSet, K, threshold, numSteps, tempScale):
 			triple.setModel(outG, list(cArray), list(pArray), lmbd)
 			triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 			triple.setNull(outG,oneDistNull(branchData))
-		print str(triple.taxaSet)+' is complete.'
+		print(str(triple.taxaSet)+' is complete.')
 	return tripletSet
 
 def PLexMax(triple, K, threshold, numSteps, tempScale):
@@ -278,7 +278,7 @@ def PLexMax(triple, K, threshold, numSteps, tempScale):
 		triple.setModel(outG, list(cArray), list(pArray), lmbd)
 		triple.setBIC(outG, np.log(len(branchData))*(2*K-1)-2*(modelLogLik(branchData, list(cArray), list(pArray), lmbd)))
 		triple.setNull(outG,oneDistNull(branchData))
-	print str(triple.taxaSet)+' is complete.'
+	print(str(triple.taxaSet)+' is complete.')
 	return triple
 
 
@@ -299,7 +299,7 @@ def outputFormatter(outputDict,inputDict):
 	multi=bool(inputDict['multiproc'])
 	corecap=int(inputDict['maxcores'])
 	num_cores=min(multiprocessing.cpu_count(),corecap)
-	print 'Analysis Started'
+	print('Analysis Started')
 	if multi:
 		tripletSet=Parallel(n_jobs=num_cores)(delayed(PLexMax)(triple,K,lthresh,numsteps,gAScalar) for triple in trees)
 	else:
@@ -325,7 +325,7 @@ def inputReader(filepath):
 		inputDict[flag]=config.get('Input',flag)
 
 	if 'treefile' not in inputDict:
-		print 'Error: No input trees specified.'
+		print('Error: No input trees specified.')
 		return 
 	outputDict={}
 	for flag in config.options('Output'):
