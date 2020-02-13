@@ -62,16 +62,17 @@ def readin_Newick(filepath):
 		treeList.append(Tree(tree))
 	return treeList
 
-def tripSetGen(treeSet):
+def tripSetGen(treeSet,outgroup):
 #Generates the set of triplets to check.
 	leaves=treeSet[0].get_leaf_names()
+	leaves.remove(outgroup)
 	return list(itt.combinations(leaves,3))
 
 
 def getTripBranches(treeList,canonOut):
 #Goes through the trees in the input and calculates/sorts the internal branch lengths.
 	setOfTriplets=[]
-	triples=tripSetGen(treeList)
+	triples=tripSetGen(treeList,canonOut)
 	lenIt=sum(1 for _ in triples)
 	#output=np.zeros((4,lenIt))
 	output=[[None,[],[],[]] for i in range(lenIt)]
