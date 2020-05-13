@@ -12,7 +12,7 @@ Currently, ``QuIBL`` is distributed as a python script. To run it, ensure that y
 If you want to use the exact versions of ``ete3`` and ``joblib`` we used, type ``pip install -r quibl_requirements.txt`` in terminal while in the main directory. For specific instructions on the Cython version of QuIBL, see the ``README`` file in that folder.
 
 ## Running QuIBL
-To test ``QuIBL``, download and navigate to the repository and type ``python QuIBL.py ./Small_Test_Example/sampleInputFile.txt``. Any dependencies that may not be present can be installed using ``pip``. This will run a small provided sample data file and write an output CSV file to the same directory. To test your own data, change the ``treefile`` setting to be the path to a file with your Newick trees. Please note- these trees do not need to be quartets only, and can contain as many terminals as you like, as long as they all have the same set of terminals.
+To test ``QuIBL``, download and navigate to the repository and type ``python QuIBL.py ./Small_Test_Example/sampleInputFile.txt``. Any dependencies that may not be present can be installed using ``pip``. This will run a small provided sample data file and write an output CSV file to the same directory. To test your own data, change the ``treefile`` setting to be the path to a file with your Newick trees. Please note- these trees do not need to be quartets only, and can contain as many terminals as you like, as long as they all have the same set of terminals. For good results, you'll want to have at least a few hundred loci for the triplet topologies of interest.
 
 ## Input File Settings
 ``treefile`` : The path to the trees to be analyzed.
