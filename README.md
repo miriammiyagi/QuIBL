@@ -1,5 +1,5 @@
 # QuIBL
-Michael Miyagi (m_miyagi@g.harvard.edu) and Nate Edelman (nedelman@g.harvard.edu)
+Miriam Miyagi (m_miyagi@g.harvard.edu) and Nate Edelman (nedelman@g.harvard.edu)
 
 ## Quantifying Introgression via Branch Lengths
 
