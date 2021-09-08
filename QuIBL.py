@@ -78,16 +78,14 @@ def getTripBranches(treeList,canonOut):
 	output=[[None,[],[],[]] for i in range(lenIt)]
 	for counter,tree in enumerate(treeList):
 		tree.set_outgroup(canonOut)
-		#print tree.expand_polytomies()
-		if len(tree.expand_polytomies())>1:
-			print('Tree '+str(counter)+' skipped due to polytomy.')
-			continue
 		dist=0
 		#tree.set_outgroup(canonOut)
 		for index,triplet in enumerate(triples):
 			output[index][0]=triplet
 			tempTree=tree.copy('newick')
 			tempTree.prune(triplet,preserve_branch_length=True)
+			if len(tempTree.expand_polytomies())>1:
+				continue
 			common=tempTree.get_leaves()[0].get_common_ancestor(tempTree.get_leaves())
 			for x in common.get_children():
 				if not (x.is_leaf()):
